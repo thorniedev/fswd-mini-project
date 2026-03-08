@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Trash2, ShoppingBag, Plus, Minus } from "lucide-react";
-import { useCartStore, useAuthStore } from "@/store";
+import { useCartStore, useAuthStore, useNotificationStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import { formatPrice, getSafeImage } from "@/lib/utils";
 import { LoginModal } from "@/components/shared/login-modal";
@@ -12,9 +12,47 @@ import { useState } from "react";
 export function CartView() {
   const { items, removeItem, updateQuantity, clearCart, total } = useCartStore();
   const { isAuthenticated, user } = useAuthStore();
+  const { pushNotification } = useNotificationStore();
   const [loginOpen, setLoginOpen] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const cartTotal = total();
   const isAdmin = user?.role === "admin";
+
+  const handleCheckout = async () => {
+    if (items.length === 0) {
+      pushNotification({
+        type: "error",
+        title: "Checkout failed",
+        message: "Your cart is empty.",
+      });
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 900));
+
+      // Simulate a payment/checkout API response.
+      if (Math.random() < 0.2) {
+        throw new Error("Checkout service unavailable");
+      }
+
+      clearCart();
+      pushNotification({
+        type: "success",
+        title: "Checkout successful",
+        message: "Your order has been placed.",
+      });
+    } catch {
+      pushNotification({
+        type: "error",
+        title: "Checkout failed",
+        message: "Please try again in a moment.",
+      });
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -155,7 +193,7 @@ export function CartView() {
                 <span className="text-indigo-600">{formatPrice(cartTotal)}</span>
               </div>
             </div>
-            <Button className="w-full" size="lg">
+            <Button className="w-full" size="lg" onClick={handleCheckout} loading={isCheckingOut}>
               Checkout
             </Button>
             <Link href="/products" className="block text-center text-sm text-indigo-600 hover:underline">

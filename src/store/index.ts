@@ -145,3 +145,39 @@ export const useCartStore = create<CartState>()(
     }
   )
 );
+
+// ─── UI Notification Store
+type NotificationType = "success" | "error" | "info";
+
+interface UiNotification {
+  id: string;
+  title: string;
+  message?: string;
+  type: NotificationType;
+}
+
+interface NotificationState {
+  notifications: UiNotification[];
+  pushNotification: (
+    input: Omit<UiNotification, "id"> & { durationMs?: number }
+  ) => void;
+  removeNotification: (id: string) => void;
+}
+
+export const useNotificationStore = create<NotificationState>()((set) => ({
+  notifications: [],
+  pushNotification: ({ durationMs = 3500, ...input }) => {
+    const id = `notif-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const item: UiNotification = { id, ...input };
+    set((state) => ({ notifications: [item, ...state.notifications] }));
+    window.setTimeout(() => {
+      set((state) => ({
+        notifications: state.notifications.filter((n) => n.id !== id),
+      }));
+    }, durationMs);
+  },
+  removeNotification: (id) =>
+    set((state) => ({
+      notifications: state.notifications.filter((n) => n.id !== id),
+    })),
+}));

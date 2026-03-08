@@ -1,7 +1,12 @@
 import { ApiError, toApiError } from '@/lib/api/errors';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://api.escuelajs.co/api/v1';
+export function getRequiredApiBaseUrl() {
+  const value = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!value) {
+    throw new Error('Missing NEXT_PUBLIC_API_BASE_URL environment variable');
+  }
+  return value;
+}
 
 type ApiFetchInit = RequestInit & {
   nextRevalidate?: number;
@@ -12,9 +17,10 @@ export async function apiFetch<T>(
   path: string,
   init?: ApiFetchInit
 ): Promise<T> {
+  const apiBaseUrl = getRequiredApiBaseUrl();
   const { nextRevalidate, headers, token, ...rest } = init ?? {};
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
     ...rest,
     headers: {
       'Content-Type': 'application/json',

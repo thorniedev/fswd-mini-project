@@ -1,4 +1,5 @@
 import { apiFetch } from '@/lib/api/client';
+import { getRequiredApiBaseUrl } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import type { Product, CreateProductDto, UpdateProductDto } from '@/features/products/types';
 
@@ -34,12 +35,11 @@ type UploadFileResponse = {
 };
 
 export async function uploadProductImage(file: File, token: string): Promise<string> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://api.escuelajs.co/api/v1';
+  const apiBaseUrl = getRequiredApiBaseUrl();
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch(`${baseUrl}/files/upload`, {
+  const response = await fetch(`${apiBaseUrl}/files/upload`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,

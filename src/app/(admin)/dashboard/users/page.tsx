@@ -18,8 +18,8 @@ export default async function AdminUsersPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-        <p className="text-sm text-gray-500 mt-0.5">{users.length} total registered users</p>
+        <h1 className="text-2xl font-bold text-foreground">Users</h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">{users.length} total registered users</p>
       </div>
       <AdminUsersClient users={users} initialSearch={initialSearch} />
     </div>

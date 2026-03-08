@@ -32,6 +32,23 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const { setAuth } = useAuthStore();
 
+  const syncSessionCookie = async (input: {
+    role: "admin" | "customer";
+    userId: number;
+    accessToken: string;
+    refreshToken: string;
+  }) => {
+    try {
+      await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+    } catch {
+      // noop: client auth store is still available as fallback
+    }
+  };
+
   const loginForm = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
   const registerForm = useForm<RegisterFormData>({ resolver: zodResolver(registerSchema) });
 
@@ -54,6 +71,12 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
     try {
       const tokens = await login({ email: data.email, password: data.password });
       const user = await getProfile(tokens.access_token);
+      await syncSessionCookie({
+        role: user.role,
+        userId: user.id,
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+      });
       setAuth(user, tokens.access_token, tokens.refresh_token);
       onClose();
       const next = getSafeNextUrl();
@@ -91,6 +114,12 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
       });
       const tokens = await login({ email: data.email, password: data.password });
       const user = await getProfile(tokens.access_token);
+      await syncSessionCookie({
+        role: user.role,
+        userId: user.id,
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+      });
       setAuth(user, tokens.access_token, tokens.refresh_token);
       onClose();
       const next = getSafeNextUrl();

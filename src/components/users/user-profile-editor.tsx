@@ -12,6 +12,7 @@ import {
 } from '@/features/users/schema';
 import { useAuthStore } from '@/store';
 import type { User } from '@/features/users/types';
+import { ApiError } from '@/lib/api/client';
 
 interface UserProfileEditorProps {
   user: User;
@@ -51,17 +52,33 @@ export function UserProfileEditor({ user, embedded = false, onSuccess }: UserPro
 
     try {
       const selectedFile = values.avatarFile?.[0] as File | undefined;
-      let avatarUrl = user.avatar;
+      const payload: {
+        name?: string;
+        email?: string;
+        avatar?: string;
+        password?: string;
+      } = {};
+
+      const nextName = values.name.trim();
+      const nextEmail = values.email.trim();
+
+      if (nextName && nextName !== user.name) {
+        payload.name = nextName;
+      }
+      if (nextEmail && nextEmail !== user.email) {
+        payload.email = nextEmail;
+      }
       if (selectedFile) {
-        avatarUrl = await uploadUserAvatar(selectedFile, accessToken);
+        payload.avatar = await uploadUserAvatar(selectedFile, accessToken);
+      }
+      if (values.password?.trim()) {
+        payload.password = values.password.trim();
       }
 
-      const payload = {
-        name: values.name,
-        email: values.email,
-        avatar: avatarUrl,
-        ...(values.password ? { password: values.password } : {}),
-      };
+      if (Object.keys(payload).length === 0) {
+        setMessage('No changes to save.');
+        return;
+      }
 
       const updated = await updateUser(user.id, payload, accessToken);
       setUser(updated);
@@ -73,7 +90,11 @@ export function UserProfileEditor({ user, embedded = false, onSuccess }: UserPro
         password: '',
       });
       onSuccess?.();
-    } catch {
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message || 'Failed to update profile.');
+        return;
+      }
       setError('Failed to update profile.');
     }
   });

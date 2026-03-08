@@ -37,6 +37,15 @@ export function AdminTopbar({ onToggleSidebar }: AdminTopbarProps) {
     setNotifications((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/session", { method: "DELETE" });
+    } catch {
+      // noop
+    }
+    logout();
+  };
+
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-md">
       <div className="flex h-16 items-center justify-between gap-4 px-4 md:px-6">
@@ -121,13 +130,13 @@ export function AdminTopbar({ onToggleSidebar }: AdminTopbarProps) {
 
             <div className="invisible absolute right-0 top-12 z-50 w-44 rounded-xl border border-border bg-popover p-1 opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100">
               <Link
-                href={user ? `/users/${user.id}` : '/users'}
+                href="/dashboard/profile"
                 className="block rounded-lg px-3 py-2 text-sm text-popover-foreground hover:bg-muted"
               >
                 Profile
               </Link>
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="w-full rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
               >
                 Logout

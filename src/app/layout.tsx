@@ -3,6 +3,7 @@ import "./globals.css";
 import { AppShell } from "@/components/layout/app-shell";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { NotificationPopups } from "@/components/shared/notification-popups";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <AppShell>{children}</AppShell>
+        <NotificationPopups />
       </body>
     </html>
   );

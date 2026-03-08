@@ -10,18 +10,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith('/dashboard');
-  const { isAuthenticated, user } = useAuthStore();
-  const isAdmin = isAuthenticated && user?.role === 'admin';
+  const { isAuthenticated, logout } = useAuthStore();
 
   useEffect(() => {
-    if (isAdmin && !isAdminRoute) {
-      router.replace('/dashboard');
-    }
-  }, [isAdmin, isAdminRoute, router]);
+    let mounted = true;
+    const syncSession = async () => {
+      if (!isAuthenticated) return;
+      try {
+        const response = await fetch('/api/auth/session', { cache: 'no-store' });
+        const session = (await response.json()) as {
+          authenticated?: boolean;
+          role?: 'admin' | 'customer';
+        };
+        if (!mounted) return;
 
-  if (isAdmin && !isAdminRoute) {
-    return <main className="min-h-screen" />;
-  }
+        if (!session.authenticated) {
+          logout();
+          return;
+        }
+
+        if (session.role === 'admin' && !isAdminRoute) {
+          router.replace('/dashboard');
+        }
+      } catch {
+        // noop
+      }
+    };
+
+    syncSession();
+    return () => {
+      mounted = false;
+    };
+  }, [isAuthenticated, isAdminRoute, logout, router]);
 
   if (isAdminRoute) {
     return <main className="min-h-screen">{children}</main>;

@@ -27,6 +27,15 @@ export function Navbar() {
   const isAdmin = isAuthenticated && user?.role === "admin";
   const canUseCart = !isAuthenticated || user?.role !== "admin";
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/session", { method: "DELETE" });
+    } catch {
+      // noop
+    }
+    logout();
+  };
+
   return (
     <>
       <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 backdrop-blur-md">
@@ -88,7 +97,7 @@ export function Navbar() {
                       My Profile
                     </Link>
                     <button
-                      onClick={logout}
+                      onClick={handleLogout}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                     >
                       Logout
@@ -143,7 +152,10 @@ export function Navbar() {
             ))}
             {isAuthenticated ? (
               <button
-                onClick={() => { logout(); setMenuOpen(false); }}
+                onClick={async () => {
+                  await handleLogout();
+                  setMenuOpen(false);
+                }}
                 className="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50"
               >
                 Logout

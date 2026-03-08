@@ -22,8 +22,8 @@ export default async function AdminProductsPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{products.length} total products</p>
+          <h1 className="text-2xl font-bold text-foreground">Products</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">{products.length} total products</p>
         </div>
       </div>
       <AdminProductsClient
