@@ -310,18 +310,6 @@ Admin:
   - users list/detail
   - dashboard root/products/users
 
-## Rubric Coverage
-
-| Requirement | Current status |
-| --- | --- |
-| Folder Structure (+10) | Feature-first structure, route groups, middleware, auth session API route, unused legacy barrels removed |
-| API Integration & Data Fetching (+25) | Centralized API client, env-only URL, feature queries/actions, route protection via cookie session + middleware |
-| Dynamic Routing (+15) | Product and user dynamic routes with metadata + not-found/error boundaries |
-| Component Design & Reusability (+15) | Shared UI primitives, reusable product/user/admin components, centralized state stores |
-| UI/UX & Responsive (+15) | Responsive layouts, role-based nav/shell flows, improved theme-token consistency |
-| Loading and Error Handling (+10) | Global + route-level `loading.tsx` and `error.tsx` across key routes |
-| README Quality (+10) | Includes architecture, routing, auth rules, API endpoints, env, scripts, and rubric mapping |
-
 ## Local Development
 
 1. Install dependencies:
